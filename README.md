@@ -1,1 +1,1 @@
-# Code Quiz
+# Financial Quiz
