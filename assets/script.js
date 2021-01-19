@@ -1,31 +1,33 @@
-// Create an array of questions
-// Create a start button on HTML
-// Hide start button when clicked  
-// Populate question on HTML
-// Create buttons for multiple choice answers
-// Create multiple choice answers
-// Create event listeners for buttons click
-// When click on any button, move to next question
-// After last question, user presented with alert / game over notification
+// Create an array of questions +
+// Create a start button on HTML +
+// Hide start button when clicked + 
+// Populate question on HTML +
+// Create buttons for multiple choice answers +
+// Create multiple choice answers +
+// Create event listeners for buttons click +
+// When click on any button, move to next question +
+// After last question, user presented with alert / game over notification +
 
 
-// Create timer
-// Keep track of score
-// Find a way to identify if user click on right answer
-// Create form for user to enter initials
+// Create timer +
+// Keep track of score +
+// Find a way to identify if user click on right answer +
+// Create form for user to enter initials +
 // Store high scores 
+// Display high scores
 
 let startButton = document.querySelector('#startBtn');
 let questionBox = document.querySelector('#questionBox');
 let choiceButton = document.querySelector('#choices');
+let timerEl = document.querySelector('#timer');
 
 let questionCount = 0;
-let timeLeft = 90;
+let timeLeft = 76;
 let score = 0;
 let correctAnswer;
 
 
-// Array of questions with answers
+// Array of questions, answer choices, and correct answer
 let questions = [
     {
         q : 'What is a stock?',
@@ -56,14 +58,46 @@ let questions = [
 startButton.addEventListener('click', function(){
     startButton.setAttribute('style', 'display: none;');
     displayQuestion(0);
+    timer();
 });
 
-choiceButton.addEventListener('click', function(){
+choiceButton.addEventListener('click', function(event){
+    let element = event.target;
+    if(element.matches('button')){
+
+        if(element.textContent == questions[questionCount].correct){
+            score+=10;
+        } else{
+            score-=5;
+        }
+    } 
+    console.log(score);
     questionCount++;
     questionBox.innerHTML = '';
     choiceButton.innerHTML = '';
     displayQuestion(questionCount);
 });
+
+function timer() {
+    let timerInterval = setInterval(function(){
+        timeLeft--;
+        timerEl.innerHTML = 'Time remaining:<br>' + timeLeft + ' seconds';
+
+        if(questionCount === questions.length){
+            if(timeLeft > 0){
+                clearInterval(timerInterval);
+                timerEl.innerHTML = '';
+            }
+        }
+
+        if(timeLeft === 0){
+            clearInterval(timerInterval);
+            timerEl.innerHTML = '';
+            showScore();
+        }
+
+    }, 1000);
+}
 
 function displayQuestion(questionCount){
     if (questionCount === questions.length) {
@@ -76,22 +110,55 @@ function displayQuestion(questionCount){
         for(let i = 0; i < questions[questionCount].a.length; i++){
             let buttonEl = document.createElement('button');
             choiceButton.appendChild(buttonEl);
-            buttonEl.textContent = questions[questionCount].a[i];
-
-            if(buttonEl.innerText === questions[questionCount].correct){
-                score+=5;
-            }
+            buttonEl.textContent = questions[questionCount].a[i];   
         }
-        //tabScore();
-        
     }
-    console.log(score);
+    
 };
 
 function showScore(){
+    // Add time amount to score
+    score += timeLeft;
+
     let scoreSheet = document.createElement('h2');
     questionBox.appendChild(scoreSheet);
-    scoreSheet.textContent = 'Your score is ' + score + '.';
+    scoreSheet.textContent = 'Quiz complete! Your score is ' + score + '.';
+
+    let enterInitials = document.createElement('h3');
+    enterInitials.setAttribute('id', 'enterInitials');
+    questionBox.appendChild(enterInitials);
+    enterInitials.textContent = 'Enter your initials for recognition for the realm to see!'
+
+    let textBox = document.createElement('input');
+    textBox.setAttribute('type', 'text');
+    textBox.setAttribute('id', 'initials');
+    textBox.textContent = '';
+    questionBox.appendChild(textBox);
+
+    let commitScore = document.createElement('button');
+    commitScore.setAttribute('type', 'submit');
+    commitScore.setAttribute('id', 'submitScore');
+    commitScore.textContent = 'Submit Score';
+    questionBox.appendChild(commitScore);
+
+    commitScore.addEventListener('click', function(){
+        let initials = textBox.value;
+        let scoreRecord = {
+            name : initials,
+            score : score
+        };
+
+        console.log(scoreRecord)
+
+        let highScores = localStorage.setItem('scoreRecord');
+        if(highScores === null){
+            highScores = [];
+        } else {
+            highScores;
+        }
+
+
+    })
 };
 
 
