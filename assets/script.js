@@ -15,11 +15,13 @@
 // Create form for user to enter initials +
 // Store high scores 
 // Display high scores
+// Try again button
 
 let startButton = document.querySelector('#startBtn');
 let questionBox = document.querySelector('#questionBox');
 let choiceButton = document.querySelector('#choices');
 let timerEl = document.querySelector('#timer');
+let scoreList = document.querySelector('#scoreList');
 
 let questionCount = 0;
 let timeLeft = 76;
@@ -53,24 +55,31 @@ let questions = [
         q : 'What is a popular metric to value a stock?',
         a : ['The z-score', 'The price-earnings ratio', 'The market capitalization of the company', 'The Du Pont Formula'],
         correct : 'The price-earnings ratio',
-    }]
+    }
+];
 
+// Event listener for start button to start the quiz and timer
 startButton.addEventListener('click', function(){
     startButton.setAttribute('style', 'display: none;');
     displayQuestion(0);
     timer();
 });
 
+// Event listener for question choices, event target to determine if correct answer was selected
 choiceButton.addEventListener('click', function(event){
     let element = event.target;
     if(element.matches('button')){
-
+        
+        // Adjusts score depending on choice targeted
         if(element.textContent == questions[questionCount].correct){
             score+=10;
         } else{
             score-=5;
+            timeLeft-=10;
         }
     } 
+
+    // Adds to the question count, clears question and choice, and runs function to populate the next question and choice
     console.log(score);
     questionCount++;
     questionBox.innerHTML = '';
@@ -78,11 +87,13 @@ choiceButton.addEventListener('click', function(event){
     displayQuestion(questionCount);
 });
 
+// Timer function, sets interval to 1 second decrements
 function timer() {
     let timerInterval = setInterval(function(){
         timeLeft--;
         timerEl.innerHTML = 'Time remaining:<br>' + timeLeft + ' seconds';
 
+        // Clears the timer from the screen if all the questions have been answered
         if(questionCount === questions.length){
             if(timeLeft > 0){
                 clearInterval(timerInterval);
@@ -90,23 +101,30 @@ function timer() {
             }
         }
 
+        // Clears the timer from screen if time expires and runs the gameOver function
         if(timeLeft === 0){
             clearInterval(timerInterval);
             timerEl.innerHTML = '';
-            showScore();
+            gameOver();
         }
 
     }, 1000);
 }
 
+// Question function
 function displayQuestion(questionCount){
+
+    // Runs gameOver funtion if all questions have been answered
     if (questionCount === questions.length) {
-        return showScore();
+        return gameOver();
+    
+    // Creates the question on the screen as part of the questionBox div
     } else {
         let questionEl = document.createElement('h2');
         questionBox.appendChild(questionEl);
         questionEl.textContent = questions[questionCount].q;
 
+        // Brings up the question choices as buttons as part of the choice div
         for(let i = 0; i < questions[questionCount].a.length; i++){
             let buttonEl = document.createElement('button');
             choiceButton.appendChild(buttonEl);
@@ -116,32 +134,58 @@ function displayQuestion(questionCount){
     
 };
 
-function showScore(){
+function gameOver(){
     // Add time amount to score
     score += timeLeft;
 
+    // Displays a notification after the last question for the user's score
     let scoreSheet = document.createElement('h2');
     questionBox.appendChild(scoreSheet);
     scoreSheet.textContent = 'Quiz complete! Your score is ' + score + '.';
 
+    // Displays message to input user initials for record
     let enterInitials = document.createElement('h3');
     enterInitials.setAttribute('id', 'enterInitials');
     questionBox.appendChild(enterInitials);
     enterInitials.textContent = 'Enter your initials for recognition for the realm to see!'
 
+    // Text box for entering user initials
     let textBox = document.createElement('input');
     textBox.setAttribute('type', 'text');
     textBox.setAttribute('id', 'initials');
     textBox.textContent = '';
     questionBox.appendChild(textBox);
 
+    // Button to submit initials and score info
     let commitScore = document.createElement('button');
     commitScore.setAttribute('type', 'submit');
     commitScore.setAttribute('id', 'submitScore');
     commitScore.textContent = 'Submit Score';
     questionBox.appendChild(commitScore);
 
+    // Event listener for process to record initials and score
     commitScore.addEventListener('click', function(){
+
+        // Remove elements related to inputing initials for score
+        questionBox.removeChild(enterInitials);
+        questionBox.removeChild(textBox);
+        questionBox.removeChild(commitScore);
+
+        // Diplays Retry Quiz button
+        retry();
+
+        // Score List Title
+        let scoreListTitle = document.createElement('h3');
+        scoreListTitle.setAttribute('id', 'scoreListTitle');
+        scoreListTitle.textContent = 'High Score List';
+        questionBox.appendChild(scoreListTitle);
+
+        // Score list that populates after submitting initials
+        let scoreRecords = document.createElement('div');
+        scoreRecords.setAttribute('id', 'scoreRecords');
+        scoreRecords.textContent = '';
+        scoreList.appendChild(scoreRecords);
+
         let initials = textBox.value;
         let scoreRecord = {
             name : initials,
@@ -150,15 +194,46 @@ function showScore(){
 
         console.log(scoreRecord)
 
-        let highScores = localStorage.setItem('scoreRecord');
-        if(highScores === null){
-            highScores = [];
-        } else {
-            highScores;
-        }
+        // Log score into local storage
+        let highScores = JSON.stringify(scoreRecord);
 
+        // Pull scores from local storage
+        let pullScores = JSON.parse(highScores);
+        document.getElementById('scoreRecords').innerHTML = pullScores.name + ' ............ ' + pullScores.score;
+        
+        // Retry Button
+        function retry(){
+            let retryButton = document.createElement('button');
+            retryButton.setAttribute('type', 'submit');
+            retryButton.setAttribute('id', 'retry');
+            retryButton.textContent = 'Retry Quiz';
+            questionBox.appendChild(retryButton);
+
+            // Event listener if user wants to replay the quiz
+            retryButton.addEventListener('click', function(){
+
+                // Remove retry button and score info
+                questionBox.removeChild(retryButton);
+                questionBox.removeChild(scoreSheet);
+                questionBox.removeChild(scoreListTitle);
+                scoreList.removeChild(scoreRecords);
+                
+                // Reset question count and restart quiz
+                questionCount = 0;
+                displayQuestion(0);
+                
+                // Reset countdown and repopulate timer text
+                timeLeft = 76;
+                timerEl.innerHTML = 'Time remaining: <br>' + timeLeft + ' seconds';
+                timerEl.appendChild(timerEl);
+
+                // Restart timer countdown
+                timer();
+                
 
     })
+}
+    });
 };
 
 
