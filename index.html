@@ -3,17 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link rel="stylesheet" type="css" href="./assets/style.css"/>
+
+    <link rel="stylesheet" href="./assets/reset.css"/>
+
+    <link rel="stylesheet" href="./assets/style.css"/>
     
     <title>Quiz Game</title>
 </head>
 <body>
-    <h1 id="header">Whatcha Know...About Finance</h1>
+    <h1 id="header">Whatcha Know...About Finance?</h1>
+    <div id='timer'>Time remaining: <br>75 seconds</div>
     <button id='startBtn'>Start Quiz</button>
     <br><br>
-    <div id='timer'>Time remaining: <br>75 seconds</div>
+    
     <div id='questionBox'></div>
-    <div id='choices'></div>
+    <ul id='choices'></ul>
     <div id='scoreList'></div>
 
     <script src='./assets/script.js'></script> 

@@ -23,6 +23,8 @@ let choiceButton = document.querySelector('#choices');
 let timerEl = document.querySelector('#timer');
 let scoreList = document.querySelector('#scoreList');
 
+let scoreArray = [];
+
 let questionCount = 0;
 let timeLeft = 76;
 let score = 0;
@@ -33,13 +35,13 @@ let correctAnswer;
 let questions = [
     {
         q : 'What is a stock?',
-        a : ['A way to trade commodities', 'The part of a plant that is sold at future prices', 'The market in which a security is bought and sold', 'A share of ownership in a company'],
+        a : ['A way to trade commodities', 'The thing that Jack climbed', 'A right to buy shares in the future', 'A share of ownership in a company'],
         correct : 'A share of ownership in a company',
     },
     {  
         q : 'What is a dividend?',
-        a : ['A position title of a person working on the stock market floor', 'An electronic signal to notify the execution of a trade', 'A payment of portion of a company\'s profit to a stockholder', 'A fee charged by a brokerage firm to hold a security in your portfolio'],
-        correct : 'A payment of portion of a company\'s profit to a stockholder',
+        a : ['A person who trades securities', 'An electronic notification of a trade', 'A payment of profits to a stockholder', 'A fee to buy stocks or bonds'],
+        correct : 'A payment of profits to a stockholder',
     },
     {
         q : 'Who developed the first index fund?',
@@ -105,6 +107,7 @@ function timer() {
         if(timeLeft === 0){
             clearInterval(timerInterval);
             timerEl.innerHTML = '';
+
             gameOver();
         }
 
@@ -140,6 +143,8 @@ function gameOver(){
 
     // Displays a notification after the last question for the user's score
     let scoreSheet = document.createElement('h2');
+    questionBox.innerHTML = '';
+    choiceButton.innerHTML = '';
     questionBox.appendChild(scoreSheet);
     scoreSheet.textContent = 'Quiz complete! Your score is ' + score + '.';
 
@@ -175,9 +180,9 @@ function gameOver(){
         retry();
 
         // Score List Title
-        let scoreListTitle = document.createElement('h3');
+        let scoreListTitle = document.createElement('h2');
         scoreListTitle.setAttribute('id', 'scoreListTitle');
-        scoreListTitle.textContent = 'High Score List';
+        scoreListTitle.textContent = 'Latest Scores';
         questionBox.appendChild(scoreListTitle);
 
         // Score list that populates after submitting initials
@@ -187,19 +192,30 @@ function gameOver(){
         scoreList.appendChild(scoreRecords);
 
         let initials = textBox.value;
+
         let scoreRecord = {
             name : initials,
             score : score
         };
 
+        scoreArray.push(scoreRecord);
+
         console.log(scoreRecord)
 
         // Log score into local storage
-        let highScores = JSON.stringify(scoreRecord);
+        localStorage.setItem('scoreList', JSON.stringify(scoreArray));
 
         // Pull scores from local storage
-        let pullScores = JSON.parse(highScores);
-        document.getElementById('scoreRecords').innerHTML = pullScores.name + ' ............ ' + pullScores.score;
+        let pullScores = JSON.parse(localStorage.getItem('scoreList'));
+        console.log(pullScores);
+
+        for(let i = 0; i < pullScores.length; i++){
+            let pulled = document.createElement('h3');
+            pulled.innerHTML = pullScores[i].name + ' ............ ' + pullScores[i].score;
+            document.getElementById('scoreRecords').appendChild(pulled);
+            console.log(pullScores[i]);
+        }
+        
         
         // Retry Button
         function retry(){
@@ -218,14 +234,16 @@ function gameOver(){
                 questionBox.removeChild(scoreListTitle);
                 scoreList.removeChild(scoreRecords);
                 
+                // Reset score counter
+                score =0;
+
                 // Reset question count and restart quiz
                 questionCount = 0;
                 displayQuestion(0);
                 
                 // Reset countdown and repopulate timer text
-                timeLeft = 76;
+                timeLeft = 75;
                 timerEl.innerHTML = 'Time remaining: <br>' + timeLeft + ' seconds';
-                timerEl.appendChild(timerEl);
 
                 // Restart timer countdown
                 timer();
