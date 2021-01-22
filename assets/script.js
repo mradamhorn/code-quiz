@@ -75,6 +75,7 @@ choiceButton.addEventListener('click', function(event){
         // Adjusts score depending on choice targeted
         if(element.textContent == questions[questionCount].correct){
             score+=10;
+            alert('Correct!');
         } else{
             score-=5;
             timeLeft-=10;
